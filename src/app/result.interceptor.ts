@@ -7,7 +7,7 @@ import {
 } from '@nestjs/common';
 import { createResult } from 'src/utils/result';
 import { of } from 'rxjs';
-import { catchError } from 'rxjs/operators';
+import { catchError, map } from 'rxjs/operators';
 
 @Injectable()
 export class AuthInterceptor implements NestInterceptor {
@@ -18,9 +18,12 @@ export class AuthInterceptor implements NestInterceptor {
     return next.handle().pipe(
       catchError((err: any) => {
         if (err instanceof BetError) {
-          return createResult(null, err.code, err.message);
+          return of(createResult(null, err.code, err.message));
         }
         throw err;
+      }),
+      map((result: any) => {
+        return of(createResult(result));
       }),
     );
   }
