@@ -1,5 +1,5 @@
 import { connect } from 'mongoose';
-import { mongodb } from '../../config.json';
+import { mongodb } from '../config.json';
 connect(
   mongodb.url,
   {

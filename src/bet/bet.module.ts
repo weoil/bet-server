@@ -4,6 +4,6 @@ import { BetService } from './bet.service';
 
 @Module({
   controllers: [BetController],
-  providers: [BetService]
+  providers: [BetService],
 })
 export class BetModule {}

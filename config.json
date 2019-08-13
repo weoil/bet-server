@@ -3,5 +3,8 @@
     "url": "mongodb://127.0.0.1:27017/bet",
     "user": "betMan",
     "pass": "Luanzehui6.1"
+  },
+  "jwt": {
+    "secret": "kun$kun$bian$guo$k1"
   }
 }
