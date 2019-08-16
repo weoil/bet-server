@@ -6,5 +6,9 @@
   },
   "jwt": {
     "secret": "kun$kun$bian$guo$k1"
+  },
+  "wechat": {
+    "secret": "4e5cf6f1d9834fbf7f88a28a7939b762",
+    "appId": "wx76c0d0db56b2ddf4"
   }
 }

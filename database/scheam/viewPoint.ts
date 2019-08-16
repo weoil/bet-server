@@ -1,9 +1,21 @@
-import { ObjectID } from 'bson';
-import { Schema, model } from 'mongoose';
+import { Schema, model, Document } from 'mongoose';
+export interface IViewPoint {
+  name: string;
+  participate: string[]; // 参与者们
+}
+interface IDocumentViewPoint extends Document, IViewPoint {}
+export const ViewPointSchema = new Schema(
+  {
+    name: String,
+    participate: [Schema.Types.ObjectId], // 参与者们
+  },
+  {
+    versionKey: false,
+  },
+);
 
-export const ViewPointSchema = new Schema({
-  name: String,
-  participate: [ObjectID], // 参与者们
-});
-
-export default model('viewPoint', ViewPointSchema, 'viewPoint');
+export default model<IDocumentViewPoint>(
+  'viewPoint',
+  ViewPointSchema,
+  'viewPoint',
+);

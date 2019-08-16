@@ -2,7 +2,7 @@ import * as jsonwebtoken from 'jsonwebtoken';
 import { jwt } from '../../config.json';
 export default class JWT {
   static sign(payload: any) {
-    jsonwebtoken.sign(payload, jwt.secret, {
+    return jsonwebtoken.sign(payload, jwt.secret, {
       // expiresIn: 3,600,000*,
     });
   }

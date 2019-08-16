@@ -1,16 +1,16 @@
-import { BetError } from './../utils/error';
+import { BetError } from '../utils/error';
 import {
   Injectable,
   NestInterceptor,
   HttpException,
   Request,
 } from '@nestjs/common';
-import { createResult } from 'src/utils/result';
+import { createResult } from '../utils/result';
 import { of } from 'rxjs';
 import { catchError, map } from 'rxjs/operators';
 
 @Injectable()
-export class AuthInterceptor implements NestInterceptor {
+export class ResultInterceptor implements NestInterceptor {
   intercept(
     context: import('@nestjs/common').ExecutionContext,
     next: import('@nestjs/common').CallHandler<any>,
@@ -23,7 +23,7 @@ export class AuthInterceptor implements NestInterceptor {
         throw err;
       }),
       map((result: any) => {
-        return of(createResult(result));
+        return createResult(result);
       }),
     );
   }
