@@ -137,9 +137,9 @@ export class BetService {
     delete result.users;
     return result;
   }
-  async findUserAllBets(userId: string, count: number = 20, page: number = 1) {
+  async findUserAllBets(userId: string, page: number = 1, count: number = 20) {
+    console.log(count, page);
     const skip = (page - 1) * count;
-
     const records = await RecordModel.aggregate([
       {
         $match: {
@@ -152,7 +152,7 @@ export class BetService {
         },
       },
       {
-        $limit: count,
+        $limit: Number(count),
       },
       {
         $skip: skip,

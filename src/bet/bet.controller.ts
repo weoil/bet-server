@@ -34,7 +34,8 @@ export class BetController {
     @Query('page') page: number = 1,
     @Query('size') size: number = 20,
   ) {
-    const result = await this.betService.findUserAllBets(user.id, size, page);
+    console.log(page, size);
+    const result = await this.betService.findUserAllBets(user.id, page, size);
     return result;
   }
   @Post('participate')
