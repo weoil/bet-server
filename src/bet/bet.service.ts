@@ -28,10 +28,9 @@ export class BetService {
   async createBet(bet: IBet) {
     const viewPonits = bet.viewPoints;
     const vrs = await ViewPointModel.insertMany(
-      viewPonits.map(name => {
+      viewPonits.map(viewPonit => {
         return {
-          name,
-          participate: [],
+          name: viewPonit.name,
         };
       }),
     );
@@ -41,18 +40,38 @@ export class BetService {
     await RecordModel.create({
       betId: _id,
       userId: initiator,
+      type: 'master',
+      date: bet.date,
     });
     return _id;
   }
-  async participateInBet(userId: string, viewPointId: string) {
-    const result = await ViewPointModel.updateOne(
-      { _id: viewPointId },
+  async participateInBet(userId: string, betId: string, viewPointId: string) {
+    const repeat = await BetModel.findOne({ 'player.userId': userId });
+    console.log(repeat);
+    if (repeat) {
+      throw new BetError(103, '请求重复');
+    }
+    BetModel.updateOne(
       {
-        $addToSet: {
-          participate: userId,
+        _id: betId,
+      },
+      {
+        $push: {
+          player: {
+            date: new Date(),
+            userId,
+            viewPointId,
+          },
         },
       },
     );
+    const result = await RecordModel.create({
+      userId,
+      betId,
+      viewPointId,
+      type: 'player',
+      date: new Date(),
+    });
     return result;
   }
   async findBetInfo(betId: string) {
@@ -91,7 +110,7 @@ export class BetService {
       {
         $lookup: {
           from: 'customer',
-          localField: 'viewPoints.participate',
+          localField: 'player.userId',
           foreignField: '_id',
           as: 'users',
         },
@@ -112,11 +131,10 @@ export class BetService {
       obj[item._id] = item;
       return obj;
     }, {});
-    result.viewPoints.forEach((vp: any) => {
-      vp.participate = vp.participate.map((user: string) => {
-        return userMap[user];
-      });
+    result.player.forEach((play: any) => {
+      play.user = userMap[play.userId];
     });
+    delete result.users;
     return result;
   }
   async findUserAllBets(userId: string, count: number = 20, page: number = 1) {

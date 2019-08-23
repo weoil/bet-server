@@ -51,7 +51,6 @@ export class CustomerService {
     if (isAuthor) {
       form.isAuthor = isAuthor;
     }
-    console.log(form);
     const r = await CustomerModel.updateOne(
       {
         _id: id,
