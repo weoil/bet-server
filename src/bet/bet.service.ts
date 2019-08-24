@@ -40,6 +40,7 @@ export class BetService {
     const { initiator, _id } = r;
     await RecordModel.create({
       betId: _id,
+      createDate: bet.date,
       userId: initiator,
     });
     return _id;
