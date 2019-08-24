@@ -2,6 +2,7 @@ import { IViewPoint } from '../../database/scheam/viewPoint';
 import { BetService } from './bet.service';
 import { Controller, Post, Body, Query, Get, Param } from '@nestjs/common';
 import { IBet } from '../../database/scheam/bet';
+import { ObjectID } from 'bson';
 
 @Controller('bet')
 export class BetController {
@@ -22,7 +23,7 @@ export class BetController {
       status: 1,
       date: new Date(),
       winViewPoint: null,
-      initiator: user.id,
+      initiator: new ObjectID(user.id),
       player: [],
     };
     const id = await this.betService.createBet(bet);

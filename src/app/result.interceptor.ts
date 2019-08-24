@@ -16,14 +16,14 @@ export class ResultInterceptor implements NestInterceptor {
     next: import('@nestjs/common').CallHandler<any>,
   ): import('rxjs').Observable<any> | Promise<import('rxjs').Observable<any>> {
     return next.handle().pipe(
+      map((result: any) => {
+        return createResult(result);
+      }),
       catchError((err: any) => {
         if (err instanceof BetError) {
           return of(createResult(null, err.code, err.message));
         }
         throw err;
-      }),
-      map((result: any) => {
-        return createResult(result);
       }),
     );
   }

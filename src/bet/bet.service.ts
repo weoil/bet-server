@@ -34,6 +34,7 @@ export class BetService {
         };
       }),
     );
+    console.log(bet);
     bet.viewPoints = vrs.map(vr => vr._id);
     const r = await BetModel.create(bet);
     const { initiator, _id } = r;
@@ -41,18 +42,25 @@ export class BetService {
       betId: _id,
       createDate: bet.date,
       userId: initiator,
+      player: [],
       type: 'master',
       date: bet.date,
     });
     return _id;
   }
   async participateInBet(userId: string, betId: string, viewPointId: string) {
-    const repeat = await BetModel.findOne({ 'player.userId': userId });
-    console.log(repeat);
-    if (repeat) {
+    const betInfo = await BetModel.findOne({ _id: betId });
+    const isPlayer = betInfo.player.some(play => {
+      return play.customerId.equals(userId);
+    });
+    const isMaster = betInfo.initiator.equals(userId);
+    if (isPlayer) {
       throw new BetError(103, '请求重复');
     }
-    BetModel.updateOne(
+    // return await BetModel.findOne({
+    //   _id: betId,
+    // });
+    await BetModel.updateOne(
       {
         _id: betId,
       },
@@ -60,20 +68,22 @@ export class BetService {
         $push: {
           player: {
             date: new Date(),
-            userId,
-            viewPointId,
+            customerId: new ObjectId(userId),
+            viewPointId: new ObjectId(viewPointId),
           },
         },
       },
     );
-    const result = await RecordModel.create({
+    if (isMaster) {
+      return;
+    }
+    await RecordModel.create({
       userId,
       betId,
       viewPointId,
       type: 'player',
       date: new Date(),
     });
-    return result;
   }
   async findBetInfo(betId: string) {
     let result: any = await BetModel.aggregate([
@@ -111,7 +121,7 @@ export class BetService {
       {
         $lookup: {
           from: 'customer',
-          localField: 'player.userId',
+          localField: 'player.customerId',
           foreignField: '_id',
           as: 'users',
         },
@@ -127,19 +137,17 @@ export class BetService {
       throw new BetError(250, '没找到东西~');
     }
     result = result[0];
-    result.initiator.id = result.initiator._id;
     const userMap = result.users.reduce((obj: any, item: ICustomer) => {
       obj[item._id] = item;
       return obj;
     }, {});
     result.player.forEach((play: any) => {
-      play.user = userMap[play.userId];
+      play.user = userMap[play.customerId];
     });
-    delete result.users;
+    // delete result.users;
     return result;
   }
   async findUserAllBets(userId: string, page: number = 1, count: number = 20) {
-    console.log(count, page);
     const skip = (page - 1) * count;
     const records = await RecordModel.aggregate([
       {
@@ -202,7 +210,7 @@ export class BetService {
       {
         $lookup: {
           from: 'customer',
-          localField: 'viewPoints.participate',
+          localField: 'player.customerId',
           foreignField: '_id',
           as: 'users',
         },
