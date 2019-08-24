@@ -1,3 +1,4 @@
+import { IViewPoint } from '../../database/scheam/viewPoint';
 import { BetService } from './bet.service';
 import { Controller, Post, Body, Query, Get, Param } from '@nestjs/common';
 import { IBet } from '../../database/scheam/bet';
@@ -9,7 +10,7 @@ export class BetController {
   async createBet(
     @Body('name') name: string,
     @Body('intro') intro: string,
-    @Body('viewPoints') viewPoints: string[],
+    @Body('viewPoints') viewPoints: IViewPoint[],
     @Body('level') level: number = 1,
     @Body('user') user: Bet.RequestInUser,
   ) {
@@ -22,6 +23,7 @@ export class BetController {
       date: new Date(),
       winViewPoint: null,
       initiator: user.id,
+      player: [],
     };
     const id = await this.betService.createBet(bet);
     return id;
@@ -39,8 +41,9 @@ export class BetController {
   async participateInBet(
     @Body('user') user: Bet.RequestInUser,
     @Body('id') id: string,
+    @Body('viewPointId') viewPointId: string,
   ) {
-    return await this.betService.participateInBet(user.id, id);
+    return await this.betService.participateInBet(user.id, id, viewPointId);
   }
   @Get(':id')
   async getBet(@Param('id') id: string) {

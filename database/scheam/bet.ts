@@ -1,12 +1,17 @@
 import { Schema, model, Document } from 'mongoose';
-
+import { IViewPoint } from './viewPoint';
+export interface IPlayer {
+  customerId: string;
+  viewPointId: string;
+}
 export interface IBet {
   name: string;
   intro: string;
   initiator: string; // 主人
-  viewPoints: string[]; // 观点
+  viewPoints: IViewPoint[]; // 观点
   winViewPoint: string; // 胜利观点
   date: Date;
+  player: IPlayer[];
   status: number; // 0：关闭状态 1：开启状态
   level: number;
 }
@@ -15,6 +20,12 @@ export const BetSchema = new Schema(
   {
     name: String,
     intro: String,
+    player: [ // 参与者
+      {
+        customerId: String,
+        viewPointId: String,
+      },
+    ],
     initiator: Schema.Types.ObjectId, // 主人
     viewPoints: [Schema.Types.ObjectId], // 观点
     winViewPoint: Schema.Types.ObjectId, // 胜利观点
