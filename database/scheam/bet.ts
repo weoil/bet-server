@@ -4,6 +4,7 @@ import { IViewPoint } from './viewPoint';
 export interface IPlayer {
   customerId: ObjectID;
   viewPointId: ObjectID;
+  date: Date;
 }
 export interface IBet {
   name: string;
@@ -24,8 +25,8 @@ export const BetSchema = new Schema(
     player: [
       // 参与者
       {
-        customerId:  Schema.Types.ObjectId,
-        viewPointId:  Schema.Types.ObjectId,
+        customerId: Schema.Types.ObjectId,
+        viewPointId: Schema.Types.ObjectId,
         date: Date,
       },
     ],

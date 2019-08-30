@@ -2,7 +2,7 @@ import { Schema, model, Document } from 'mongoose';
 export interface IViewPoint {
   name: string;
 }
-interface IDocumentViewPoint extends Document, IViewPoint {}
+export interface IDocumentViewPoint extends Document, IViewPoint {}
 export const ViewPointSchema = new Schema(
   {
     name: String,

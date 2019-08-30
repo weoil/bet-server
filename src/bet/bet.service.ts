@@ -1,11 +1,14 @@
 import { BetError } from './../utils/error';
 import { CustomerModel, ICustomer } from './../../database/scheam/customer';
 import { Injectable } from '@nestjs/common';
-import BetModel, { IBet } from '../../database/scheam/bet';
+import BetModel, { IBet, IPlayer } from '../../database/scheam/bet';
 import RecordModel, { IRecord } from '../../database/scheam/record';
-import ViewPointModel, { IViewPoint } from '../../database/scheam/viewPoint';
+import ViewPointModel, {
+  IViewPoint,
+  IDocumentViewPoint,
+} from '../../database/scheam/viewPoint';
 import { ObjectId } from 'bson';
-
+import * as dayjs from 'dayjs';
 const hideUsers = (prefix: string) => {
   const obj = {};
   [
@@ -141,10 +144,31 @@ export class BetService {
       obj[item._id] = item;
       return obj;
     }, {});
-    result.player.forEach((play: any) => {
-      play.user = userMap[play.customerId];
+    // 针对观点建立映射用户关系
+    const player2ViewPointMap = result.player.reduce(
+      (obj: any, play: IPlayer) => {
+        let list: ICustomer[] = obj[play.viewPointId.toHexString()];
+        if (!list) {
+          list = obj[play.viewPointId.toHexString()] = [];
+          obj[play.viewPointId.toHexString()] = list;
+        }
+        list.push({
+          ...userMap[play.customerId.toHexString()],
+          date: dayjs(play.date).format('YYYY-MM-DD HH:MM'),
+        });
+        return obj;
+      },
+      {},
+    );
+    result.viewPoints = result.viewPoints.map((vp: IDocumentViewPoint) => {
+      return {
+        _id: vp._id,
+        name: vp.name,
+        users: player2ViewPointMap[vp._id.toHexString()] || [],
+      };
     });
-    // delete result.users;
+    delete result.users;
+    delete result.player;
     return result;
   }
   async findUserAllBets(userId: string, page: number = 1, count: number = 20) {
@@ -157,7 +181,7 @@ export class BetService {
       },
       {
         $sort: {
-          createDate: -1,
+          date: -1,
         },
       },
       {
